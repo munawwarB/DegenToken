@@ -45,7 +45,21 @@ contract Points is ERC20, Ownable {
         _burn(msg.sender, _value);
     }
 
-    function buyPowerBoost(uint _value) external {
+    function redeemTokens(uint256 _value, string memory _item) public {
+        if (compareStrings(_item, "powerBoost")) {
+            buyPowerBoost(_value);
+        } else if (compareStrings(_item, "speed")) {
+            buySpeed(_value);
+        } else if (compareStrings(_item, "shield")) {
+            buySheild(_value);
+        } else if (compareStrings(_item, "sword")) {
+            buySword(_value);
+        } else {
+            revert("Invalid Item");
+        }
+    }
+
+    function buyPowerBoost(uint _value) internal {
         require(balanceOf(msg.sender) >= _value, "You dont have enough tokens");
         require(
             prices["powerBoost"] <= _value,
@@ -56,7 +70,7 @@ contract Points is ERC20, Ownable {
         powerBoost[msg.sender] = true;
     }
 
-    function buySpeed(uint _value) external {
+    function buySpeed(uint _value) internal {
         require(balanceOf(msg.sender) >= _value, "You dont have enough tokens");
         require(prices["speed"] <= _value, "No enough tokens to buy speed");
         approve(msg.sender, _value);
@@ -64,7 +78,7 @@ contract Points is ERC20, Ownable {
         speed[msg.sender] = true;
     }
 
-    function buySheild(uint _value) external {
+    function buySheild(uint _value) internal {
         require(balanceOf(msg.sender) >= _value, "You dont have enough tokens");
         require(prices["shield"] <= _value, "No enough tokens to buy shield");
         approve(msg.sender, _value);
@@ -72,11 +86,19 @@ contract Points is ERC20, Ownable {
         shield[msg.sender] = true;
     }
 
-    function buySword(uint _value) external {
+    function buySword(uint _value) internal {
         require(balanceOf(msg.sender) >= _value, "You dont have enough tokens");
         require(prices["sword"] <= _value, "No enough tokens to buy Sword");
         approve(msg.sender, _value);
         transferFrom(msg.sender, address(this), _value);
         sword[msg.sender] = true;
+    }
+
+    function compareStrings(
+        string memory a,
+        string memory b
+    ) public view returns (bool) {
+        return (keccak256(abi.encodePacked((a))) ==
+            keccak256(abi.encodePacked((b))));
     }
 }
